@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning: Alkene - Alkyne (Hóa Học 11)</title>
+    <style>
+        /* --- 1. CSS GLOBAL & VARIABLES --- */
+        :root {
+            --left-bg: #004d00; --left-border: #00ff00; --left-item-bg: #ffff00; --left-item-text: #0000ff;
+            --center-bg: #663300; --center-border: #ff6600;
+            --quiz-bg: #2d1b2d; --quiz-border: #ff99ff; --quiz-text: #ffcc99;
+            --right-bg: #666600; --right-border: #ffff00;
+            --btn-bg: #cccccc; --btn-text: #cc0000;
+            --text-main: #ffffff;
+            --success: #00ff00; --error: #ff3333; --info: #00ffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #111; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* --- 2. LAYOUT 1:2:1 --- */
+        .main-container { display: flex; height: 100%; padding: 10px; gap: 15px; }
+        .panel {
+            border-radius: 15px; padding: 15px; display: flex; flex-direction: column; position: relative;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5), inset 2px 2px 5px rgba(255,255,255,0.2);
+            overflow: hidden; 
+        }
+
+        /* --- 3. UI SPECIFICS --- */
+        /* LEFT PANEL */
+        .col-left { flex: 1; background-color: var(--left-bg); border: 3px solid var(--left-border); box-shadow: 0 0 10px var(--left-border); }
+        .menu-btn {
+            background: var(--left-item-bg); color: var(--left-item-text); font-weight: bold; padding: 12px; margin-bottom: 10px;
+            border-radius: 8px; cursor: pointer; border: 2px solid #999; text-align: left; transition: 0.1s;
+        }
+        .menu-btn:active { transform: scale(0.98); }
+        .submenu { display: none; padding-left: 15px; margin-bottom: 10px; }
+        .submenu-item { background: #fffacd; color: #00008b; padding: 8px; margin-bottom: 5px; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
+        .submenu-item:hover { background: #fff; }
+
+        /* CENTER PANEL */
+        .col-center { flex: 2; background-color: var(--center-bg); border: 3px solid var(--center-border); box-shadow: 0 0 15px var(--center-border); }
+        .display-area {
+            flex: 1; background: var(--quiz-bg); border: 2px solid var(--quiz-border); border-radius: 10px; padding: 20px;
+            overflow-y: auto; color: var(--quiz-text); font-size: 1.1em; position: relative;
+            box-shadow: 0 0 10px var(--quiz-border), inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        h2 { text-align: center; text-transform: uppercase; margin-bottom: 20px; text-shadow: 0 0 5px currentColor; }
+
+        /* RIGHT PANEL SCROLL SETUP */
+        .col-right { flex: 1; background-color: var(--right-bg); border: 3px solid var(--right-border); box-shadow: 0 0 10px var(--right-border); padding: 5px; }
+        #rightPanelScroll {
+            width: 100%; height: 100%; overflow-y: auto; padding: 10px; padding-right: 5px;
+        }
+        #rightPanelScroll::-webkit-scrollbar { width: 8px; }
+        #rightPanelScroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        #rightPanelScroll::-webkit-scrollbar-thumb { background: var(--right-border); border-radius: 4px; }
+
+        .control-group-title { 
+            text-align: center; color: yellow; font-weight: bold; margin: 20px 0 10px; 
+            text-transform: uppercase; text-shadow: 0 0 5px yellow; border-bottom: 1px dashed rgba(255,255,0,0.3); padding-bottom: 5px;
+        }
+        .control-group-title:first-child { margin-top: 0; }
+
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; margin-bottom: 5px; color: #fff; font-size: 0.9em; font-weight: bold;}
+        .input-group input { 
+            width: 100%; padding: 8px; font-weight: bold; text-align: center; 
+            border: 2px solid #999; border-radius: 5px; background: #fff; color: #000;
+        }
+        .input-group input:focus { outline: none; border-color: yellow; box-shadow: 0 0 5px yellow; }
+
+        .ctrl-btn {
+            background: var(--btn-bg); color: var(--btn-text); border: 2px solid #999; padding: 10px; margin-bottom: 8px;
+            border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); 
+            cursor: default; display: block; width: 100%; font-size: 0.9em;
+        }
+        
+        .action-btn { cursor: pointer; transition: 0.2s; border-color: white; }
+        .action-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        
+        .btn-start { 
+            background: #ff0000; color: white; font-size: 1.2em; margin-top: 20px; margin-bottom: 30px;
+            border: 3px solid white; box-shadow: 0 0 15px red; cursor: pointer; text-transform: uppercase;
+        }
+
+        .bottom-actions { display: flex; gap: 10px; margin-bottom: 15px; }
+        .bottom-actions button {
+            flex: 1; padding: 8px; background: #444; color: white; border: 1px solid #999;
+            border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em;
+        }
+        .bottom-actions button:hover { background: #666; }
+
+        .audio-toggle {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(0,0,0,0.3); padding: 8px; border-radius: 20px; cursor: pointer; color: yellow;
+        }
+
+        .stats-list { list-style: none; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; color: #ddd; font-size: 0.9em; }
+        .stats-list li { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dotted #555; padding-bottom: 2px; }
+        .stats-list li span { color: yellow; font-weight: bold; }
+
+        /* --- 4. CONTENT & IMAGES --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 999; justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: #fff; width: 70%; max-height: 85%; overflow-y: auto; padding: 20px;
+            border-radius: 10px; border: 4px solid var(--center-border); position: relative; animation: popIn 0.3s ease;
+        }
+        .modal-box.dark-mode { background: #222; color: white; border-color: var(--info); }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; font-weight: bold; color: red; cursor: pointer; }
+        @keyframes popIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        
+        .content-img, .quiz-img {
+            display: block; max-width: 100%; height: auto; margin: 10px auto;
+            border: 2px solid #555; border-radius: 5px;
+        }
+        .quiz-img { max-height: 200px; }
+
+        /* Review Table */
+        .review-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .review-table th, .review-table td { border: 1px solid #555; padding: 8px; text-align: left; vertical-align: top; }
+        .review-table th { background: #444; color: yellow; text-align: center; }
+        .ans-correct { color: #00ff00; font-weight: bold; }
+        .ans-wrong { color: #ff3333; font-weight: bold; }
+
+        /* --- 5. QUIZ UI --- */
+        .option-btn { background: #333; color: white; padding: 12px; margin-bottom: 5px; border: 1px solid #777; cursor: pointer; border-radius: 5px; }
+        .option-btn:hover { background: #555; }
+        .option-btn.selected { background: var(--center-border); color: black; font-weight: bold; }
+        .option-btn.correct { background: #00ff00 !important; color: black !important; }
+        .option-btn.wrong { background: #ff0000 !important; color: white !important; }
+        .input-text { width: 100%; padding: 10px; font-size: 1.1em; margin-top: 10px; background: #fff; color: #000; }
+        
+        /* Result Screen */
+        #resultScreen { display: none; text-align: center; height: 100%; flex-direction: column; justify-content: center; }
+        .big-score { font-size: 56px; color: yellow; text-shadow: 0 0 20px red; margin: 15px 0; }
+        .rank-label { font-size: 28px; color: white; margin-bottom: 25px; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .util-btn { padding: 10px 20px; cursor: pointer; font-weight: bold; border: none; border-radius: 5px; color: black; min-width: 120px; }
+        
+        .external-link { color: #00ffff; text-decoration: underline; cursor: pointer; }
+        sub, sup { font-size: 0.75em; }
+    </style>
+</head>
+<body>
+
+    <!-- MODAL POPUP (Content) -->
+    <div id="contentModal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal('contentModal')">&times;</span>
+            <h2 id="modalTitle" style="color: var(--center-border); border-bottom: 2px solid #ccc;"></h2>
+            <div id="modalBody" style="margin-top: 15px; line-height: 1.6; color: black;"></div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP (Review Result) -->
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal-box dark-mode">
+            <span class="close-modal" onclick="closeModal('reviewModal')">&times;</span>
+            <h2 style="color: var(--info);">XEM KẾT QUẢ BÀI LÀM</h2>
+            <table class="review-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">ĐÁP ÁN HỆ THỐNG</th>
+                        <th style="width: 60%">BÀI LÀM CỦA HỌC SINH</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewBody"></tbody>
+            </table>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="util-btn" style="background: #ccc;" onclick="closeModal('reviewModal')">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 1. LEFT PANEL -->
+        <div class="panel col-left">
+            <h3 style="text-align: center; color: white; margin-bottom: 15px;">NỘI DUNG</h3>
+            <div id="menuContainer" style="overflow-y: auto;"></div>
+        </div>
+
+        <!-- 2. CENTER PANEL -->
+        <div class="panel col-center">
+            <div class="display-area">
+                <!-- Screen 1: Intro -->
+                <div id="introScreen">
+                    <h2>HYDROCARBON KHÔNG NO</h2>
+                    <h3 style="text-align: center; color: white;">ALKENE - ALKYNE</h3>
+                    <p style="text-align: center; margin-top: 50px; color: #ccc;">
+                        Vui lòng nhập thông tin học sinh và số lượng câu hỏi ở cột bên phải.<br>
+                        Sau đó nhấn "Bắt đầu làm bài".
+                    </p>
+                </div>
+
+                <!-- Screen 2: Quiz -->
+                <div id="quizScreen" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; color: #aaa; font-size: 0.9em; margin-bottom: 10px;">
+                        <span id="qTypeLabel">Dạng bài: ...</span>
+                        <span id="qCountLabel">Câu: 0/0</span>
+                    </div>
+                    <!-- Question text with innerHTML support -->
+                    <div id="questionContent" style="margin-bottom: 15px;"></div>
+                    
+                    <div id="quizImgContainer"></div>
+                    <div id="answerZone"></div>
+                    
+                    <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                        <button id="checkBtn" class="util-btn" style="background: cyan;" onclick="submitAnswer()">TRẢ LỜI</button>
+                        <button id="nextBtn" class="util-btn" style="background: #00ff00; display: none;" onclick="nextQuestion()">TIẾP THEO &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Screen 3: Result -->
+                <div id="resultScreen">
+                    <h2 style="color: white;">KẾT QUẢ BÀI LÀM</h2>
+                    <div class="big-score" id="finalScore">0.0</div>
+                    <div class="rank-label" id="finalRank">...</div>
+                    <p id="sendStatus" style="min-height: 24px; margin-bottom: 10px; font-weight: bold;"></p>
+                    
+                    <div class="btn-group">
+                        <button class="util-btn" style="background: #00ffff;" onclick="openReview()">XEM KẾT QUẢ BÀI LÀM</button>
+                        <button class="util-btn" style="background: orange;" onclick="restartGame()">LÀM LẠI</button>
+                        <button class="util-btn" style="background: #00ff00;" onclick="sendResult()">GỬI LẠI</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 10px; font-size: 0.8em; color: #aaa;">
+                Bài giảng E-Learning Hóa Học 11 - GDPT 2018
+            </div>
+        </div>
+
+        <!-- 3. RIGHT PANEL -->
+        <div class="panel col-right">
+            <div id="rightPanelScroll">
+                
+                <div class="control-group-title">THÔNG TIN HỌC SINH</div>
+                <div class="input-group">
+                    <label>Mã Học Sinh (*)</label>
+                    <input type="text" id="inpMaHS" placeholder="Nhập mã số...">
+                </div>
+                <div class="input-group">
+                    <label>Họ và Tên (*)</label>
+                    <input type="text" id="inpHoten" placeholder="Nhập họ tên...">
+                </div>
+                <div class="input-group">
+                    <label>Lớp (*)</label>
+                    <input type="text" id="inpLop" placeholder="Nhập lớp...">
+                </div>
+
+                <div class="control-group-title">CẤU HÌNH BÀI TẬP</div>
+                <div class="input-group">
+                    <label>Tổng số câu (N):</label>
+                    <input type="number" id="inpTotal" value="10" min="5" oninput="calculateDist()">
+                </div>
+                
+                <div class="input-group">
+                    <label>PHÂN PHỐI CÂU HỎI:</label>
+                    <ul class="stats-list">
+                        <li>Trắc nghiệm bốn lựa chọn: <span id="statMCQ">4</span></li>
+                        <li>Trắc nghiệm đúng - sai: <span id="statTF">2</span></li>
+                        <li>Trả lời ngắn: <span id="statShort">2</span></li>
+                        <li>Tự luận: <span id="statEssay">2</span></li>
+                    </ul>
+                </div>
+
+                <div class="control-group-title">CÁC DẠNG BÀI</div>
+                <div class="ctrl-btn">Trắc nghiệm bốn lựa chọn</div>
+                <div class="ctrl-btn">Trắc nghiệm đúng sai</div>
+                <div class="ctrl-btn">Trả lời ngắn</div>
+                <div class="ctrl-btn">Bài tập tự luận</div>
+
+                <button class="action-btn btn-start" id="startBtn" onclick="startGame()">BẮT ĐẦU LÀM BÀI</button>
+                
+                <div class="bottom-actions">
+                    <button onclick="showIntro()">Học lại bài</button>
+                    <button onclick="restartGame()">Reset bài tập</button>
+                </div>
+
+                <div class="audio-toggle" onclick="toggleSound()">
+                    <span>Âm thanh:</span>
+                    <span id="soundIcon" style="font-size: 1.5em;">🔊</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* --- CONFIGURATION --- */
+        const GOOGLE_SHEET_WEBAPP_URL = "PASTE_WEB_APP_URL_HERE"; 
+
+        /* --- DATA CONTENT --- */
+        const lessonData = [
+            { title: "1. Khái niệm và Công thức chung", subs: [
+                { t: "Hydrocarbon không no", c: "Là những hydrocarbon trong phân tử có chứa liên kết bội (liên kết đôi C=C hoặc liên kết ba C≡C) hoặc cả hai.<br>Ví dụ: CH<sub>2</sub>=CH-CH<sub>3</sub>; CH≡C-CH<sub>3</sub>" },
+                { t: "Alkene (Olefin)", c: "Là hydrocarbon không no, mạch hở, phân tử có một liên kết đôi (C=C).<br>Công thức chung: C<sub>n</sub>H<sub>2n</sub> (n ≥ 2).<br>Chất đơn giản nhất: Ethene CH<sub>2</sub>=CH<sub>2</sub>." },
+                { t: "Alkyne", c: "Là hydrocarbon không no, mạch hở, phân tử có một liên kết ba (C ≡C).<br>Công thức chung: C<sub>n</sub>H<sub>2n-2</sub> (n ≥ 2).<br>Chất đơn giản nhất: Ethyne CH≡CH." }
+            ]},
+            { title: "2. Đồng phân", subs: [
+                { t: "Đồng phân cấu tạo", c: "Gồm đồng phân về vị trí liên kết bội và đồng phân về mạch carbon.<br>Alkene và alkyne có từ 4 nguyên tử C trở lên mới có đồng phân cấu tạo.<br><br><b>Đồng phân vị trí liên kết bội</b><br>Ví dụ 1: Ankene có công thức phân tử C<sub>4</sub>H<sub>8</sub> có 2 đồng phân cấu tạo dạng vị trí liên kết đôi là:<br>CH<sub>2</sub> = CH - CH<sub>2</sub> -CH<sub>3</sub> và CH<sub>3</sub> - CH = CH - CH<sub>3</sub><br>Ví dụ 2: Ankyne có công thức phân tử C<sub>5</sub>H<sub>8</sub> có 2 đồng phân cấu tạo dạng vị trí liên kết ba là:<br>CH ≡ C - CH<sub>2</sub> - CH<sub>2</sub> - CH<sub>3</sub> và CH<sub>3</sub> - C ≡ C - CH<sub>2</sub> - CH<sub>3</sub><br><br><b>Đồng phân mạch carbon</b><br>Ví dụ 1: Ankene có công thức phân tử C<sub>4</sub>H<sub>8</sub> có 2 đồng phân cấu tạo dạng mạch carbon là:<br>CH<sub>2</sub> = CH - CH<sub>2</sub> -CH<sub>3</sub> và CH<sub>2</sub> = C(CH<sub>3</sub>)<sub>2</sub><br>Ví dụ 2: Ankyne có công thức phân tử C<sub>5</sub>H<sub>8</sub> có 2 đồng phân cấu tạo dạng mạch carbon là:<br>CH ≡ C - CH<sub>2</sub> - CH<sub>2</sub> - CH<sub>3</sub> và CH ≡ C - CH(CH<sub>3</sub>)<sub>2</sub>" },
+                { t: "Đồng phân hình học (Alkene)", c: "Xuất hiện khi mỗi nguyên tử carbon ở liên kết đôi liên kết với các nhóm nguyên tử khác nhau.<br><br><b>+ Đồng phân cis-:</b> Mạch chính nằm về cùng một phía của liên kết đôi.<br><a class='external-link' href='https://molview.org/?cid=12628' target='_blank'>[Xem MolView: cis-but-2-ene]</a><br><br><b>+ Đồng phân trans-:</b> Mạch chính nằm về hai phía khác nhau của liên kết đôi.<br><a class='external-link' href='https://molview.org/?cid=638069' target='_blank'>[Xem MolView: trans-but-2-ene]</a>" }
+            ]},
+            { title: "3. Danh pháp (Cách gọi tên)", subs: [
+                { t: "Tên gọi thay thế", c: "<b>Quy tắc đánh số:</b> Đánh số mạch chính từ phía gần liên kết bội hơn.<br><b>Công thức gọi tên:</b><br>Số chỉ vị trí nhánh - Tên nhánh + Tên tiền tố (mạch chính) - Số chỉ vị trí liên kết bội - Tên hậu tố.<br>Hậu tố của Alkene là -ene.<br>Hậu tố của Alkyne là -yne.<br>Ví dụ 1, alkene sau: CH<sub>2</sub> = C(CH<sub>3</sub>)-CH<sub>2</sub>-CH<sub>3</sub> gọi là 2 - methylbtut - 1 - ene<br>Ví dụ 2, alkyne sau: CH ≡ C-CH(CH<sub>3</sub>)-CH<sub>3</sub> gọi là 3 - methylbtut - 1 - yne" },
+                { t: "Tên gọi đồng phân hình học", c: "Thêm tiền tố cis- hoặc trans- trước tên gọi và ngăn cách bằng dấu gạch nối.<br>Ví dụ: cis-but-2-ene; trans-but-2-ene" },
+                { t: "Tên gọi thông thường", c: "<b>Ankene:</b><br>Tên thông thường alkene = Tên tiền tố + ylen<br>Một số alkene có tên gọi thông thường.<br>CH<sub>2</sub>=CH<sub>2</sub> (Ethylene)<br>CH<sub>2</sub>=CH-CH<sub>3</sub> (Propylene)<br>CH<sub>2</sub>=C(CH<sub>3</sub>)<sub>2</sub> (Isobutylene)<br><br><b>Alkyne:</b><br>Tên thông thường alkyne = Tên nhóm thế (tên nhánh) + acetylene<br>Một số alkyne có tên gọi thông thường.<br>CH≡CH (Acetylene)<br>CH≡C-CH<sub>3</sub> (Methylacetylene)<br>CH<sub>3</sub>-C≡C-CH<sub>3</sub> (Dimethylacetylene)<br>CH≡C-CH<sub>2</sub>-CH<sub>3</sub> (Ethylacetylene)" }
+            ]},
+            { title: "4. Tính chất vật lí", subs: [
+                { t: "Trạng thái", c: "Số nguyên tử Carbon < 5 (từ C2 đến C4): Tồn tại ở thể khí (trừ chất but-2-yne là lỏng/rắn do nhiệt độ sôi cao hơn).<br>Mạch carbon dài hơn (C5): Tồn tại ở thể lỏng hoặc rắn." },
+                { t: "Nhiệt độ sôi và nóng chảy", c: "Tăng dần theo chiều tăng của khối lượng phân tử, nhưng thường thấp hơn alkane cùng mạch carbon." },
+                { t: "Độ tan & Khối lượng riêng", c: "<b>Độ tan:</b> Hầu như không tan trong nước (do kém phân cực) nhưng tan tốt trong dung môi hữu cơ (methanol, acetone...).<br><b>Khối lượng riêng:</b> Nhẹ hơn nước, thường nằm trong khoảng 0,6 - 0.8 g/mL." }
+            ]}
+        ];
+
+        /* --- EXTENDED QUESTION BANK (NO REACTIONS - PURE THEORY) --- */
+        const qBank = [
+            // --- MCQ (TRẮC NGHIỆM 4 LỰA CHỌN) ---
+            // Concepts & Formulas
+            { type: 1, q: "Công thức phân tử chung của alkene là gì?", opts: ["C<sub>n</sub>H<sub>2n</sub> (n ≥ 2)", "C<sub>n</sub>H<sub>2n+2</sub> (n ≥ 1)", "C<sub>n</sub>H<sub>2n-2</sub> (n ≥ 2)", "C<sub>n</sub>H<sub>2n-6</sub> (n ≥ 6)"], a: 0 },
+            { type: 1, q: "Công thức phân tử chung của alkyne là gì?", opts: ["C<sub>n</sub>H<sub>2n-2</sub> (n ≥ 2)", "C<sub>n</sub>H<sub>2n</sub> (n ≥ 2)", "C<sub>n</sub>H<sub>2n+2</sub> (n ≥ 1)", "C<sub>n</sub>H<sub>2n-6</sub> (n ≥ 6)"], a: 0 },
+            { type: 1, q: "Hydrocarbon không no là hydrocarbon trong phân tử có chứa:", opts: ["Liên kết bội (đôi hoặc ba)", "Chỉ liên kết đơn", "Vòng benzen", "Nhóm chức alcohol"], a: 0 },
+            { type: 1, q: "Alkene là hydrocarbon không no, mạch hở, phân tử có chứa:", opts: ["Một liên kết đôi C=C", "Một liên kết ba C≡C", "Hai liên kết đôi C=C", "Chỉ liên kết đơn C-C"], a: 0 },
+            { type: 1, q: "Alkyne là hydrocarbon không no, mạch hở, phân tử có chứa:", opts: ["Một liên kết ba C≡C", "Một liên kết đôi C=C", "Hai liên kết ba C≡C", "Vòng no"], a: 0 },
+            { type: 1, q: "Chất nào sau đây là chất đơn giản nhất của dãy đồng đẳng alkene?", opts: ["Ethene (CH<sub>2</sub>=CH<sub>2</sub>)", "Ethyne (CH≡CH)", "Propene (CH<sub>2</sub>=CH-CH<sub>3</sub>)", "Methane (CH<sub>4</sub>)"], a: 0 },
+            { type: 1, q: "Chất nào sau đây là chất đơn giản nhất của dãy đồng đẳng alkyne?", opts: ["Ethyne (CH≡CH)", "Ethene (CH<sub>2</sub>=CH<sub>2</sub>)", "Propyne (CH≡C-CH<sub>3</sub>)", "Ethane (CH<sub>3</sub>-CH<sub>3</sub>)"], a: 0 },
+            
+            // Isomers
+            { type: 1, q: "Alkene và alkyne bắt đầu có đồng phân cấu tạo khi số nguyên tử carbon là:", opts: ["4 trở lên", "3 trở lên", "2 trở lên", "5 trở lên"], a: 0 },
+            { type: 1, q: "Đồng phân cấu tạo của alkene và alkyne bao gồm:", opts: ["Vị trí liên kết bội và mạch carbon", "Chỉ mạch carbon", "Chỉ vị trí liên kết bội", "Đồng phân nhóm chức"], a: 0 },
+            { type: 1, q: "Điều kiện để alkene có đồng phân hình học là:", opts: ["Mỗi C ở liên kết đôi liên kết với 2 nhóm thế khác nhau", "Có liên kết ba", "Mạch carbon phân nhánh", "Có ít nhất 4 nguyên tử carbon"], a: 0 },
+            { type: 1, q: "Alkene nào sau đây có đồng phân hình học?", opts: ["But-2-ene", "But-1-ene", "Propene", "Ethene"], a: 0 },
+            { type: 1, q: "Trong đồng phân cis-, mạch chính nằm ở vị trí nào so với liên kết đôi?", opts: ["Cùng một phía", "Hai phía khác nhau", "Vuông góc", "Xen kẽ nhau"], a: 0 },
+            { type: 1, q: "Trong đồng phân trans-, mạch chính nằm ở vị trí nào so với liên kết đôi?", opts: ["Hai phía khác nhau", "Cùng một phía", "Vuông góc", "Trùng nhau"], a: 0 },
+            
+            // Nomenclature
+            { type: 1, q: "Theo danh pháp thay thế, hậu tố của alkene là:", opts: ["-ene", "-yne", "-ane", "-ol"], a: 0 },
+            { type: 1, q: "Theo danh pháp thay thế, hậu tố của alkyne là:", opts: ["-yne", "-ene", "-ane", "-al"], a: 0 },
+            { type: 1, q: "Tên gọi thông thường của CH<sub>2</sub>=CH<sub>2</sub> là:", opts: ["Ethylene", "Acetylene", "Propylene", "Butylene"], a: 0 },
+            { type: 1, q: "Tên gọi thông thường của CH≡CH là:", opts: ["Acetylene", "Ethylene", "Methylacetylene", "Propylene"], a: 0 },
+            { type: 1, q: "Quy tắc đánh số mạch chính của hydrocarbon không no là:", opts: ["Từ phía gần liên kết bội hơn", "Từ phía gần nhánh hơn", "Từ trái sang phải", "Bất kỳ đầu nào"], a: 0 },
+
+            // Physical Properties
+            { type: 1, q: "Ở điều kiện thường, các alkene và alkyne từ C2 đến C4 tồn tại ở trạng thái:", opts: ["Khí", "Lỏng", "Rắn", "Plasma"], a: 0 },
+            { type: 1, q: "Đặc điểm về độ tan của alkene và alkyne là:", opts: ["Hầu như không tan trong nước", "Tan vô hạn trong nước", "Tan tốt trong nước nóng", "Tạo kết tủa với nước"], a: 0 },
+            { type: 1, q: "So với alkane cùng mạch carbon, nhiệt độ sôi của alkene và alkyne thường:", opts: ["Thấp hơn", "Cao hơn rất nhiều", "Bằng nhau tuyệt đối", "Không xác định"], a: 0 },
+            { type: 1, q: "Khối lượng riêng của alkene và alkyne thường nằm trong khoảng:", opts: ["0.6 - 0.8 g/mL (nhẹ hơn nước)", "1.0 - 1.2 g/mL (nặng hơn nước)", "> 1.5 g/mL", "Bằng khối lượng riêng của nước"], a: 0 },
+
+            // --- TF (TRẮC NGHIỆM ĐÚNG - SAI) ---
+            { type: 2, q: "Hydrocarbon không no chỉ chứa liên kết đơn trong phân tử.", a: 1 }, // S
+            { type: 2, q: "Công thức chung của alkene là CnH2n với n ≥ 2.", a: 0 }, // Đ
+            { type: 2, q: "But-2-yne tồn tại ở thể khí ở điều kiện thường.", a: 1 }, // S (lỏng/rắn do nhiệt độ sôi cao hơn)
+            { type: 2, q: "Alkene tan tốt trong các dung môi hữu cơ như methanol, acetone.", a: 0 }, // Đ
+            { type: 2, q: "Đồng phân hình học chỉ xuất hiện ở alkyne.", a: 1 }, // S (ở alkene)
+            { type: 2, q: "Ethene và Ethyne đều nhẹ hơn nước.", a: 0 }, // Đ
+            { type: 2, q: "Để gọi tên alkene, ta đánh số mạch chính bắt đầu từ phía gần nhánh nhất.", a: 1 }, // S (gần liên kết bội)
+            { type: 2, q: "Chất CH2=C(CH3)2 có tên thông thường là Isobutylene.", a: 0 }, // Đ
+
+            // --- SHORT (TRẢ LỜI NGẮN) ---
+            { type: 3, q: "Số nguyên tử carbon trong phân tử Propylene là bao nhiêu?", a: "3" },
+            { type: 3, q: "Tên thay thế của CH2=CH-CH3 là gì? (viết thường toàn bộ)", a: "propene" },
+            { type: 3, q: "Số liên kết ba trong phân tử Acetylene là bao nhiêu?", a: "1" },
+            { type: 3, q: "Alkene có 4 nguyên tử carbon có bao nhiêu đồng phân cấu tạo (mạch và vị trí)?", a: "3" }, // but-1-ene, but-2-ene, isobutylene
+            { type: 3, q: "Tên thông thường của alkyne CH≡C-CH3 là gì? (viết liền, viết thường)", a: "methylacetylene" },
+            { type: 3, q: "Số nguyên tử Hydrogen trong phân tử Ethene là bao nhiêu?", a: "4" },
+
+            // --- ESSAY (TỰ LUẬN) ---
+            { type: 4, q: "So sánh nhiệt độ sôi của alkene với alkane tương ứng cùng mạch carbon và giải thích ngắn gọn xu hướng.", k: ["thấp hơn", "khối lượng", "tương tác"] },
+            { type: 4, q: "Điều kiện cần và đủ để một alkene có đồng phân hình học là gì?", k: ["liên kết đôi", "nhóm thế khác nhau", "carbon"] },
+            { type: 4, q: "Trình bày sự biến đổi trạng thái vật lý của alkene khi số nguyên tử carbon tăng dần.", k: ["khí", "lỏng", "rắn", "tăng dần"] },
+            { type: 4, q: "Tại sao alkene và alkyne không tan trong nước nhưng tan trong dung môi hữu cơ?", k: ["kém phân cực", "không phân cực", "hữu cơ"] }
+        ];
+
+        /* --- SYSTEM STATE --- */
+        let gameState = {
+            questions: [], idx: 0, answers: [], rawScore: 0, sound: true
+        };
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        /* --- INITIALIZATION --- */
+        window.onload = function() {
+            renderMenu();
+            calculateDist();
+        };
+
+        function calculateDist() {
+            let N = parseInt(document.getElementById('inpTotal').value) || 10;
+            if (N < 5) { N = 5; document.getElementById('inpTotal').value = 5; }
+            
+            let pTF = Math.floor(N * 0.2);
+            let pShort = Math.floor(N * 0.2);
+            let pEssay = Math.floor(N * 0.2);
+            let pMCQ = N - (pTF + pShort + pEssay);
+
+            document.getElementById('statMCQ').innerText = pMCQ;
+            document.getElementById('statTF').innerText = pTF;
+            document.getElementById('statShort').innerText = pShort;
+            document.getElementById('statEssay').innerText = pEssay;
+
+            return { N, pMCQ, pTF, pShort, pEssay };
+        }
+
+        /* --- UI HANDLERS --- */
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = "";
+            lessonData.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = 'menu-btn';
+                btn.innerHTML = item.title;
+                btn.onclick = () => {
+                    const sub = btn.nextElementSibling;
+                    sub.style.display = sub.style.display === 'block' ? 'none' : 'block';
+                };
+                container.appendChild(btn);
+                
+                const sub = document.createElement('div');
+                sub.className = 'submenu';
+                item.subs.forEach(s => {
+                    const si = document.createElement('div');
+                    si.className = 'submenu-item';
+                    si.innerHTML = "• " + s.t;
+                    si.onclick = () => openModalContent(s.t, s.c);
+                    sub.appendChild(si);
+                });
+                container.appendChild(sub);
+            });
+        }
+
+        function openModalContent(t, c) {
+            document.getElementById('modalTitle').innerHTML = t;
+            document.getElementById('modalBody').innerHTML = c;
+            document.getElementById('contentModal').style.display = 'flex';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function showIntro() {
+            document.getElementById('introScreen').style.display = 'block';
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'none';
+        }
+
+        /* --- HELPERS: SHUFFLE --- */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function prepareQuestion(qOriginal) {
+            // Deep clone to avoid modifying the const bank
+            let q = JSON.parse(JSON.stringify(qOriginal));
+            
+            // If MCQ, shuffle options and update index
+            if (q.type === 1) {
+                let paired = q.opts.map((txt, i) => ({ txt: txt, isCorrect: i === q.a }));
+                shuffleArray(paired);
+                q.opts = paired.map(p => p.txt);
+                q.a = paired.findIndex(p => p.isCorrect);
+            }
+            return q;
+        }
+
+        /* --- GAME LOGIC --- */
+        function startGame() {
+            const ma = document.getElementById('inpMaHS').value.trim();
+            const ten = document.getElementById('inpHoten').value.trim();
+            const lop = document.getElementById('inpLop').value.trim();
+            if(!ma || !ten || !lop) { alert("Vui lòng nhập đầy đủ: Mã học sinh, Họ và tên và Lớp!"); return; }
+
+            const dist = calculateDist();
+            
+            // Function to get shuffled subset of questions
+            const getQ = (type, count) => {
+                let pool = qBank.filter(q => q.type === type);
+                shuffleArray(pool); // Shuffle the pool first
+                let selected = [];
+                for(let i=0; i<count; i++) {
+                    // Loop if pool is smaller than count (rare with this bank size)
+                    selected.push(prepareQuestion(pool[i % pool.length]));
+                }
+                return selected;
+            };
+
+            // Get questions by type
+            let finalQ = [
+                ...getQ(1, dist.pMCQ),
+                ...getQ(2, dist.pTF),
+                ...getQ(3, dist.pShort),
+                ...getQ(4, dist.pEssay)
+            ];
+
+            // Shuffle the order of questions presented to user
+            shuffleArray(finalQ);
+
+            gameState.questions = finalQ;
+            gameState.idx = 0;
+            gameState.rawScore = 0;
+            gameState.answers = [];
+
+            toggleInputs(true);
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+
+            renderQuestion();
+        }
+
+        function toggleInputs(lock) {
+            ['inpMaHS','inpHoten','inpLop','inpTotal','startBtn'].forEach(id => {
+                document.getElementById(id).disabled = lock;
+            });
+        }
+
+        /* --- RENDER QUESTION --- */
+        function renderQuestion() {
+            const q = gameState.questions[gameState.idx];
+            const types = ["", "Trắc nghiệm bốn lựa chọn", "Trắc nghiệm đúng - sai", "Trả lời ngắn", "Tự luận"];
+            
+            document.getElementById('qTypeLabel').innerText = types[q.type];
+            document.getElementById('qCountLabel').innerText = `Câu ${gameState.idx + 1}/${gameState.questions.length}`;
+            
+            // IMPORTANT: Use innerHTML to render HTML tags like <sub>
+            document.getElementById('questionContent').innerHTML = q.q;
+
+            const imgBox = document.getElementById('quizImgContainer');
+            imgBox.innerHTML = '';
+            if(q.img) {
+                imgBox.innerHTML = `<img src="${q.img}" class="quiz-img" onerror="this.style.display='none'">`;
+            }
+
+            const zone = document.getElementById('answerZone');
+            zone.innerHTML = '';
+            document.getElementById('checkBtn').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'none';
+
+            if(q.type === 1 || q.type === 2) {
+                const opts = q.type === 1 ? q.opts : ["Đúng", "Sai"];
+                opts.forEach((txt, i) => {
+                    const b = document.createElement('div');
+                    b.className = 'option-btn';
+                    // IMPORTANT: innerHTML here too for options
+                    b.innerHTML = txt;
+                    b.dataset.val = i;
+                    b.onclick = () => selectOpt(b);
+                    zone.appendChild(b);
+                });
+            } else if(q.type === 3) {
+                zone.innerHTML = `<input id="userInp" class="input-text" placeholder="Nhập đáp án...">`;
+            } else {
+                zone.innerHTML = `<textarea id="userInp" class="input-text" rows="3" placeholder="Nhập câu trả lời..."></textarea>`;
+            }
+        }
+
+        let curSel = null;
+        function selectOpt(el) {
+            if(curSel) curSel.classList.remove('selected');
+            curSel = el; el.classList.add('selected');
+        }
+
+        /* --- SCORING --- */
+        function submitAnswer() {
+            const q = gameState.questions[gameState.idx];
+            let isCorr = false, userTxt = "Chưa làm", sysAns = "";
+            const d = calculateDist();
+            const counts = {1: d.pMCQ, 2: d.pTF, 3: d.pShort, 4: d.pEssay};
+            const pts = {1: 4, 2: 2, 3: 2, 4: 2};
+            const val = pts[q.type] / (counts[q.type] || 1);
+
+            if(q.type <= 2) {
+                if(!curSel) { alert("Vui lòng chọn đáp án!"); return; }
+                const uVal = parseInt(curSel.dataset.val);
+                isCorr = (uVal === q.a);
+                userTxt = curSel.innerHTML; // Keeps subscripts in review log
+                sysAns = q.type===1 ? q.opts[q.a] : (q.a===0?"Đúng":"Sai");
+                
+                const all = document.querySelectorAll('.option-btn');
+                all[q.a].classList.add('correct');
+                if(!isCorr) curSel.classList.add('wrong');
+            } else {
+                const inp = document.getElementById('userInp');
+                userTxt = inp.value.trim();
+                if(!userTxt) { alert("Vui lòng nhập câu trả lời!"); return; }
+                
+                if(q.type === 3) {
+                    isCorr = (userTxt.toLowerCase() === q.a.toLowerCase());
+                    sysAns = q.a;
+                } else {
+                    let match = 0;
+                    q.k.forEach(k => { if(userTxt.toLowerCase().includes(k)) match++; });
+                    isCorr = (match > 0);
+                    sysAns = "Ý chính: " + q.k.join(", ");
+                }
+                inp.style.border = isCorr ? "2px solid #0f0" : "2px solid #f00";
+            }
+
+            if(isCorr) gameState.rawScore += val;
+            playSound(isCorr);
+
+            gameState.answers.push({
+                idx: gameState.idx + 1,
+                q: q.q,
+                u: userTxt,
+                s: sysAns,
+                corr: isCorr
+            });
+
+            curSel = null;
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            if(++gameState.idx < gameState.questions.length) {
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        /* --- RESULT & REVIEW --- */
+        function showResult() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'flex';
+            
+            let final = Math.round(gameState.rawScore * 10) / 10;
+            if(final > 10) final = 10;
+            
+            document.getElementById('finalScore').innerText = final;
+            
+            let rank = "CẦN CỐ GẮNG";
+            let color = "red";
+            if(final >= 9) { rank = "XUẤT SẮC"; color = "#00ff00"; }
+            else if(final >= 8) { rank = "GIỎI"; color = "cyan"; }
+            else if(final >= 5) { rank = "KHÁ"; color = "yellow"; }
+            
+            const rEl = document.getElementById('finalRank');
+            rEl.innerText = rank; rEl.style.color = color;
+            document.getElementById('sendStatus').innerText = "";
+        }
+
+        function openReview() {
+            const tbody = document.getElementById('reviewBody');
+            tbody.innerHTML = "";
+            
+            gameState.answers.forEach(item => {
+                const tr = document.createElement('tr');
+                let qHtml = `<div style="margin-bottom:5px; color:#ddd;"><b>Câu ${item.idx}:</b> ${item.q}</div>`;
+                qHtml += `<div style="color:yellow;">Đ.án đúng: ${item.s}</div>`;
+                
+                const uClass = item.corr ? "ans-correct" : "ans-wrong";
+                let uHtml = `<span class="${uClass}">${item.u}</span>`;
+                tr.innerHTML = `<td>${qHtml}</td><td>${uHtml}</td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        /* --- SEND DATA --- */
+        function sendResult() {
+            const ma = document.getElementById('inpMaHS').value.trim();
+            const ten = document.getElementById('inpHoten').value.trim();
+            const lop = document.getElementById('inpLop').value.trim();
+            const status = document.getElementById('sendStatus');
+            
+            if(!ma || !ten || !lop) { alert("Thiếu thông tin học sinh!"); return; }
+            if(GOOGLE_SHEET_WEBAPP_URL.includes("PASTE_WEB")) { alert("Chưa cấu hình URL Web App!"); return; }
+            if(!navigator.onLine) { alert("Không có mạng, không thể gửi!"); return; }
+
+            const payload = {
+                ma_hoc_sinh: ma, ho_ten: ten, lop: lop,
+                mon: "HoaHoc11_Hydrocarbon",
+                diem: document.getElementById('finalScore').innerText,
+                so_cau_dung: gameState.answers.filter(x=>x.corr).length,
+                tong_cau: gameState.questions.length,
+                danh_sach_cau_sai: gameState.answers.filter(x=>!x.corr).map(x=>`C${x.idx}`).join(", ")
+            };
+
+            status.innerText = "Đang gửi..."; status.style.color = "cyan";
+            
+            fetch(GOOGLE_SHEET_WEBAPP_URL, {
+                method: "POST", mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                status.innerText = "Đã gửi kết quả thành công!"; status.style.color = "#00ff00";
+            }).catch(e => {
+                status.innerText = "Lỗi khi gửi: " + e; status.style.color = "red";
+            });
+        }
+
+        /* --- UTILS --- */
+        function restartGame() {
+            toggleInputs(false);
+            gameState = { questions: [], idx: 0, answers: [], rawScore: 0, sound: gameState.sound };
+            showIntro();
+            document.getElementById('sendStatus').innerText = "";
+        }
+
+        function toggleSound() {
+            gameState.sound = !gameState.sound;
+            document.getElementById('soundIcon').innerText = gameState.sound ? "🔊" : "🔇";
+        }
+
+        function playSound(good) {
+            if(!gameState.sound) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.connect(g); g.connect(audioCtx.destination);
+            
+            if(good) {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime+0.1);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime+0.2);
+            }
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.3);
+            osc.start(); osc.stop(audioCtx.currentTime+0.3);
+        }
+    </script>
+</body>
+</html>
